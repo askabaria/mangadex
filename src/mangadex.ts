@@ -1,3 +1,6 @@
-import { message } from "./helpers/test1";
+import { MangaArguments } from "@manga/arguments";
+import { InteractiveRunner } from "@manga/mode-interactive";
 
-console.log(message, process.argv.slice(2));
+new MangaArguments(process.argv.slice(2))
+  .registerRunner("interactive", new InteractiveRunner())
+  .run();

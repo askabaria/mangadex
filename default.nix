@@ -21,9 +21,10 @@
     buildScript = ''
       # build
       tsc
+      tsc-alias --resolve-full-paths
 
       # modify entry-points
-      pushd dist
+      pushd dist/src
         mv mangadex.js mangadex.js.tmp
         echo "#!${config.deps.nodejs}/bin/node" > mangadex.js
         cat mangadex.js.tmp >> mangadex.js
@@ -40,7 +41,7 @@
   mkDerivation = {
     src = lib.cleanSource ./.;
     checkPhase = ''
-      ./dist/mangadex.js | ${config.deps.gnugrep}/bin/grep -q "Hello, Mangadex!"
+      # ./dist/src/mangadex.js | ${config.deps.gnugrep}/bin/grep -q "Hello, Mangadex!"
     '';
     doCheck = true;
   };

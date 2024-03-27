@@ -2,14 +2,17 @@
   "name": "mangadex",
   "version": "1.0.0",
   "scripts": {
-    "update-lockfiles": "nix run .#default.lock; cat lock.json | jq '.\"package-lock\"' > package-lock.json"
+    "update-lockfiles": "nix run .#default.lock; cat lock.json | jq '.\"package-lock\"' > package-lock.json",
+    "build": "npx tsc && npx tsc-alias --resolve-full-paths"
   },
   "dependencies": {
     "typescript": "^5.4.3"
   },
-  "bin": "dist/mangadex.js",
+  "bin": "dist/src/mangadex.js",
   "devDependencies": {
     "@tsconfig/node-lts": "^20.1.3",
-    "@types/node": "^20.11.30"
+    "@types/node": "^20.11.30",
+    "rxjs": "^7.8.1",
+    "tsc-alias": "^1.8.8"
   }
 }

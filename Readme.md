@@ -33,6 +33,10 @@
       - [ ] "show" -> compile an overview to inspect and modify
       - [ ] "add" -> opens interactive search to add to your config
 
+### @extended plans
+
+- [ ] visual preview for searches and "show" mode
+
 ## resources
 
 | ID  | Resource                                                                             | Description                               |

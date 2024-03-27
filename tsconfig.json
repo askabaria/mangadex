@@ -3,6 +3,7 @@
   "extends": "@tsconfig/node-lts/tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
+    "baseUrl": ".",
     "sourceMap": true,
     "declaration": false,
     "emitDecoratorMetadata": true,
@@ -12,7 +13,14 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@aska/utils": ["libs/@aska/utils/index.ts"],
+      "@aska/commands": ["libs/@aska/commands/index.ts"],
+      "@manga/arguments": ["libs/@manga/arguments/index.ts"],
+      "@manga/commands": ["libs/@manga/commands/index.ts"],
+      "@manga/mode-interactive": ["libs/@manga/mode-interactive/index.ts"],
+    }
   },
   "files": [
     "src/mangadex.ts"
