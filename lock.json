@@ -12,7 +12,26 @@
           "typescript": "^5.4.3"
         },
         "bin": {
-          "mangadex": "mangadex.js"
+          "mangadex": "dist/mangadex.js"
+        },
+        "devDependencies": {
+          "@tsconfig/node-lts": "^20.1.3",
+          "@types/node": "^20.11.30"
+        }
+      },
+      "node_modules/@tsconfig/node-lts": {
+        "version": "20.1.3",
+        "resolved": "https://registry.npmjs.org/@tsconfig/node-lts/-/node-lts-20.1.3.tgz",
+        "integrity": "sha512-m3b7EP2U+h5tNSpaBMfcTuHmHn04wrgRPQQrfKt75YIPq6kPs2153/KfPHdqkEWGx5pEBvS6rnvToT+yTtC1iw==",
+        "dev": true
+      },
+      "node_modules/@types/node": {
+        "version": "20.11.30",
+        "resolved": "https://registry.npmjs.org/@types/node/-/node-20.11.30.tgz",
+        "integrity": "sha512-dHM6ZxwlmuZaRmUPfv1p+KrdD1Dci04FbdEm/9wEMouFqxYoFl5aMkt0VMAUtYRQDyYvD41WJLukhq/ha3YuTw==",
+        "dev": true,
+        "dependencies": {
+          "undici-types": "~5.26.4"
         }
       },
       "node_modules/typescript": {
@@ -26,8 +45,14 @@
         "engines": {
           "node": ">=14.17"
         }
+      },
+      "node_modules/undici-types": {
+        "version": "5.26.5",
+        "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-5.26.5.tgz",
+        "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==",
+        "dev": true
       }
     }
   },
-  "invalidationHash": "b87ac5c9922a7ad1235c991ca09d46e30beb523356bc6209bbb071967a24ebea"
+  "invalidationHash": "2267d3007c006453cc2e83f4149d8444e2c9577797d9e113cdec4b93545047e1"
 }

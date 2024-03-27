@@ -19,12 +19,18 @@
 
   nodejs-granular-v3 = {
     buildScript = ''
-      tsc ./mangadex.ts
-      mv mangadex.js mangadex.js.tmp
-      echo "#!${config.deps.nodejs}/bin/node" > mangadex.js
-      cat mangadex.js.tmp >> mangadex.js
-      chmod +x ./mangadex.js
-      patchShebangs .
+      # build
+      tsc
+
+      # modify entry-points
+      pushd dist
+        mv mangadex.js mangadex.js.tmp
+        echo "#!${config.deps.nodejs}/bin/node" > mangadex.js
+        cat mangadex.js.tmp >> mangadex.js
+        rm mangadex.js.tmp
+        chmod -R +x ./*.js
+        patchShebangs .
+      popd
     '';
   };
 
@@ -34,7 +40,7 @@
   mkDerivation = {
     src = lib.cleanSource ./.;
     checkPhase = ''
-      ./mangadex.js | ${config.deps.gnugrep}/bin/grep -q "Hello, Mangadex!"
+      ./dist/mangadex.js | ${config.deps.gnugrep}/bin/grep -q "Hello, Mangadex!"
     '';
     doCheck = true;
   };

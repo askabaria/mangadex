@@ -1,1 +1,7 @@
+# environments
 .direnv
+node_modules
+
+# build-results
+dist
+result

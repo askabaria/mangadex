@@ -1,5 +1,22 @@
 # Mangadex
 
+## usage-cycles
+
+- cloned
+  - `git pull` to get the latest updates
+  - `nix run .` to get the GUI
+  - `nix run . -- <arguments-go-here>` to execute automated tasks
+- automatically
+  - just use `nix run https://nfo.li/<todo-add-path>` (-> specify the url instead of `.` as the source)
+  - you can also pass `nix run --refresh https://...` to check if there's a new version available
+  - everything else works just as above
+
+## dev-cycles
+
+- have `direnv` installed, set up and allowed (will make node, npm, etc. available to your shell and editor)
+- `nix run . -- <arguments-go-here>` runs main application
+- `npm run update-lockfiles` when building complains about outdated locks (usually after installing an npm-package)
+
 ## @application plan
 
 - [ ] Stored configuration

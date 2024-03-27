@@ -1,8 +1,15 @@
 {
   "name": "mangadex",
   "version": "1.0.0",
+  "scripts": {
+    "update-lockfiles": "nix run .#default.lock; cat lock.json | jq '.\"package-lock\"' > package-lock.json"
+  },
   "dependencies": {
     "typescript": "^5.4.3"
   },
-  "bin": "mangadex.js"
+  "bin": "dist/mangadex.js",
+  "devDependencies": {
+    "@tsconfig/node-lts": "^20.1.3",
+    "@types/node": "^20.11.30"
+  }
 }
