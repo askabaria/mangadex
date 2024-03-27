@@ -1,0 +1,33 @@
+{
+  "package-lock": {
+    "name": "mangadex",
+    "version": "1.0.0",
+    "lockfileVersion": 3,
+    "requires": true,
+    "packages": {
+      "": {
+        "name": "mangadex",
+        "version": "1.0.0",
+        "dependencies": {
+          "typescript": "^5.4.3"
+        },
+        "bin": {
+          "mangadex": "mangadex.js"
+        }
+      },
+      "node_modules/typescript": {
+        "version": "5.4.3",
+        "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.4.3.tgz",
+        "integrity": "sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==",
+        "bin": {
+          "tsc": "bin/tsc",
+          "tsserver": "bin/tsserver"
+        },
+        "engines": {
+          "node": ">=14.17"
+        }
+      }
+    }
+  },
+  "invalidationHash": "b87ac5c9922a7ad1235c991ca09d46e30beb523356bc6209bbb071967a24ebea"
+}
