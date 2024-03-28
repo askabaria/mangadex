@@ -7,7 +7,7 @@ import {
 import { MangaFeedItem } from "libs/@manga/commands/src/models/MangaFeed";
 import { MangaSearchResult } from "libs/@manga/commands/src/models/MangaSearchResult";
 import { M_LangCodes } from "libs/@manga/commands/src/models/static-data";
-import { combineLatest, map, switchMap } from "rxjs";
+import { combineLatest, defer, map, of, switchMap } from "rxjs";
 
 function getCoverArt(manga: MangaSearchResult) {
   const coverDescription = manga.relationships.find(
@@ -120,21 +120,26 @@ export class DevRunner implements Runner {
                 .map((chapter) => {
                   return listChapterImages(chapter.chapterImgRefs).map(
                     (imageUrl, index) =>
-                      mangadexUploadsApi.issue({
-                        download: {
-                          file: {
-                            url: imageUrl,
-                            // keeps file-endinf od original file
-                            targetFile: `${targetDir}/${
-                              chapter.chapterData.attributes.translatedLanguage
-                            }/${getTitle(data.manga, envLangs)}/${
-                              chapter.chapterData.attributes.chapter
-                            }/${index}${imageUrl.substring(
-                              imageUrl.lastIndexOf(".")
-                            )}`,
-                          },
-                        },
-                      })
+                      defer(() =>
+                        of(
+                          mangadexUploadsApi.issue({
+                            download: {
+                              file: {
+                                url: imageUrl,
+                                // keeps file-endinf od original file
+                                targetFile: `${targetDir}/${
+                                  chapter.chapterData.attributes
+                                    .translatedLanguage
+                                }/${getTitle(data.manga, envLangs)}/${
+                                  chapter.chapterData.attributes.chapter
+                                }/${index}${imageUrl.substring(
+                                  imageUrl.lastIndexOf(".")
+                                )}`,
+                              },
+                            },
+                          })
+                        )
+                      )
                   );
                 })
                 .flat(1)
