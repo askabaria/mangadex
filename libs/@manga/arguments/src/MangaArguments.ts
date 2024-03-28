@@ -117,8 +117,12 @@ export class MangaArguments {
   /**
    * values return their objects, arguments are string-arrays
    */
-  get(primaryKey: string) {
+  get(primaryKey: string): string[] {
     // @todo: replace this ~~cra~~.......... stuff with the advanced argument mapper, once I sifted through my backups...
-    return (this.configuration as any)[primaryKey];
+    let v = (this.configuration as any)[primaryKey];
+    if (typeof v === 'string') {
+      v = [v];
+    }
+    return v;
   }
 }

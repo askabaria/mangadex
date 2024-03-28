@@ -15,8 +15,9 @@
         "--configuration", "./.mangadex/dev-cfg.nix"
         ,"--target", "./.mangadex/target"
         , "--run", "dev", "interactive"
-        , "--dev-manga", "1ef9112e-3159-455e-9e11-85a55a0b98ae"
-        , "--dev-search", "Imperfect"
+        , "--dev-fetch", "1ef9112e-3159-455e-9e11-85a55a0b98ae"
+        , "--dev-search-off", "Imperfect"
+        , "--env-lang", "en"
       ]
     }
   ]

@@ -1,3 +1,4 @@
+import { M_Relation } from "./part/Relationship";
 import {
   M_Demographic,
   M_LangCodes,
@@ -45,19 +46,5 @@ export type MangaSearchResult = {
     availableTranslatedLanguages: M_LangCodes[];
     latestUploadedChapter: M_Timestamp;
   };
-  relationships: {
-    id: string;
-    type: M_RelationshipTypes;
-    related: M_Related;
-    attributes?: {
-      // only on 'cover_art' types; @todo: fix type
-      createdAt: M_Timestamp;
-      description: string;
-      fileName: string;
-      locale: M_LangCodes;
-      uploadedAt: M_Timestamp;
-      version: number;
-      volume: `${number}` | string;
-    };
-  }[];
+  relationships: M_Relation[];
 };

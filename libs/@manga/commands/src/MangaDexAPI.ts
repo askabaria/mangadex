@@ -1,5 +1,9 @@
 import { WebApiClient, CommandExecutor } from "@aska/commands";
 import { MangaSearchResult } from "./models/MangaSearchResult";
+import { MangaFeedItem } from "./models/MangaFeed";
+import { M_Chapter } from "./models/Chapter";
+
+const log = (...args: any[]) => {};
 
 export const mangadexApi = new WebApiClient({
   baseUrl: "https://api.mangadex.org",
@@ -26,9 +30,59 @@ export const mangadexApi = new WebApiClient({
         },
         parseRes(result, { text = undefined as undefined | string }) {
           const response = JSON.parse(result.body);
-          console.warn("@todo: check response for integrity");
-          console.warn("@todo: check response for pages");
+          log("@todo: check response for integrity");
+          log("@todo: check response for pages");
           return response.data as MangaSearchResult[];
+        },
+      },
+      getInfo: {
+        renderReq({ mangaId }: { mangaId: string }) {
+          return {
+            url: [mangaId],
+            queryArgs: {
+              "includes[]": "cover_art",
+            },
+          };
+        },
+        parseRes(result, { text = undefined as undefined | string }) {
+          const response = JSON.parse(result.body);
+          log("@todo: check response for integrity");
+          log("@todo: check response for pages");
+          return response.data as MangaSearchResult;
+        },
+      },
+      getFeed: {
+        renderReq({ mangaId }: { mangaId: string }) {
+          return {
+            url: [mangaId, "feed"],
+            queryArgs: {
+              // "includes[]": "cover_art",
+            },
+          };
+        },
+        parseRes(result, { text = undefined as undefined | string }) {
+          const response = JSON.parse(result.body);
+          log("@todo: check response for integrity");
+          log("@todo: check response for pages");
+          return response.data as MangaFeedItem[];
+        },
+      },
+    },
+    "at-home": {
+      listChapter: {
+        renderReq({ chapterId }: { chapterId: string }) {
+          return {
+            url: ["server", chapterId],
+            queryArgs: {
+              // "includes[]": "cover_art",
+            },
+          };
+        },
+        parseRes(result, { text = undefined as undefined | string }) {
+          const response = JSON.parse(result.body);
+          log("@todo: check response for integrity");
+          log("@todo: check response for pages");
+          return response as M_Chapter;
         },
       },
     },
@@ -39,7 +93,7 @@ export const mangadexApi = new WebApiClient({
 export const mangadexUploadsApi = new CommandExecutor("curl", {
   autoParamDepth: 0,
   commands: {
-    downloadPage: {
+    downloadCover: {
       single: {
         renderArgs: (
           {
@@ -77,6 +131,28 @@ export const mangadexUploadsApi = new CommandExecutor("curl", {
         parseRes: (result, options, scope) => {
           // console.log(result);
           return null;
+        },
+      },
+    },
+    download: {
+      file: {
+        renderArgs: (
+          {
+            url,
+            targetFile,
+          }: {
+            url: string;
+            targetFile: string;
+          },
+          scope
+        ) => {
+          console.log(`Downloading ${url} to ${targetFile}`);
+          return `"${url}" --silent --output ${targetFile}`;
+        },
+        parseRes: (result, options, scope) => {
+          // console.log(result);
+          console.log(`${options.targetFile} done`);
+          return true;
         },
       },
     },
