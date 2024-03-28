@@ -219,12 +219,19 @@ export class WebApiClient<
     fallback = undefined
   ): Observable<RequestResponse<Setup, Request>> {
     const rqst = this.renderCommand(request);
-    const rUrl = [
-      this.setup.baseUrl,
-      ...(typeof rqst.url === "string" ? [rqst.url] : rqst.url),
-    ]
-      .join("/")
-      .replaceAll(/\/{2,}/g, "/");
+    const rUrl =
+      [
+        this.setup.baseUrl,
+        ...(typeof rqst.url === "string" ? [rqst.url] : rqst.url),
+      ]
+        .join("/")
+        .replaceAll(/\/{2,}/g, "/") +
+      (rqst.queryArgs === undefined
+        ? ""
+        : "?" +
+          Object.entries(rqst.queryArgs)
+            .map(([n, v]) => `${n}=${v}`)
+            .join(`&`));
     // @todo: execute request
     return from(
       fetch(rUrl, {

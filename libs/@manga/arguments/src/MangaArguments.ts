@@ -1,3 +1,4 @@
+import { merge } from "lodash";
 /**
  * implement this to implement `--run` values that can be passed and handle what to run, defaults to internal interactive mode
  */
@@ -18,24 +19,27 @@ export class MangaArguments {
     /**
      * configuration file location
      */
-    configuration: "./.mangadex/cfg.nix",
+    configuration: "~/.mangadex/cfg.nix",
     /**
      * activated subscriptions (what gets modified/etc. by the script)
      */
     subscriptions: [],
     /**
+     * current state of stored data
+     */
+    state: [],
+    /**
      * where to put downloaded files
      */
-    target: "./.mangadex/output",
+    target: "~/.mangadex/target",
     /**
      * what mode to run
      *
      * can be one of all the registered run modes, defaults to "interactive" client
      */
-    run: "interactive",
-  } as const;
+    run: ["interactive"],
+  };
   private configuration = structuredClone(MangaArguments.defaultConfiguration);
-  private collected: Record<string, [string] | string[]> = {};
 
   private runners: Record<string, Runner> = {};
 
@@ -62,38 +66,59 @@ export class MangaArguments {
   setup(args: string[]) {
     // reset
     this.configuration = structuredClone(MangaArguments.defaultConfiguration);
-    this.collected = {};
+    const collected: Record<string, [string] | string[]> = {};
     /**
      * parse args into flag-groups
      */
     let current: string = "";
     for (const arg of args) {
       if (arg.startsWith("--")) {
-        current = arg;
-        this.collected[current] = this.collected[current] ?? [];
+        current = arg.substring(2);
+        collected[current] = collected[current] ?? [];
         continue;
       }
-      this.collected[current].push(arg);
+      collected[current].push(arg);
     }
-
-    console.log(this.collected);
+    this.configuration = merge(this.configuration, collected);
   }
 
+  registerRunners(runners: Record<string, Runner>) {
+    this.runners = {
+      ...this.runners,
+      ...runners,
+    };
+    return this;
+  }
   registerRunner(name: string, runner: Runner) {
     this.runners[name] = runner;
     return this;
   }
 
   run() {
-    const rTarget = this.configuration.run;
+    const r = [];
+    const rTargets = this.configuration.run;
     const availRunners = Object.keys(this.runners);
-    if (!availRunners.includes(rTarget)) {
-      throw new Error(
-        `unknown run-target [${rTarget}], available are: [${availRunners.join(
-          ", "
-        )} ]`
-      );
+    for (const rTarget of rTargets) {
+      if (!availRunners.includes(rTarget)) {
+        throw new Error(
+          `unknown run-target [${rTarget}], available are: [${availRunners.join(
+            ", "
+          )} ]`
+        );
+      }
+      r.push(this.runners[rTarget].run(this));
+      if (!r[r.length - 1]) {
+        break;
+      }
     }
-    return this.runners[rTarget].run(this);
+    return r;
+  }
+
+  /**
+   * values return their objects, arguments are string-arrays
+   */
+  get(primaryKey: string) {
+    // @todo: replace this ~~cra~~.......... stuff with the advanced argument mapper, once I sifted through my backups...
+    return (this.configuration as any)[primaryKey];
   }
 }

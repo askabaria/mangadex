@@ -1,0 +1,23 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/src/mangadex.ts",
+      "preLaunchTask": "npm: build",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "args": [
+        "--configuration", "./.mangadex/dev-cfg.nix"
+        ,"--target", "./.mangadex/target"
+        , "--run", "dev", "interactive"
+        , "--dev-manga", "1ef9112e-3159-455e-9e11-85a55a0b98ae"
+        , "--dev-search", "Imperfect"
+      ]
+    }
+  ]
+}

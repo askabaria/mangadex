@@ -20,6 +20,7 @@
       "@manga/arguments": ["libs/@manga/arguments/index.ts"],
       "@manga/commands": ["libs/@manga/commands/index.ts"],
       "@manga/mode-interactive": ["libs/@manga/mode-interactive/index.ts"],
+      "@manga/mode-dev": ["libs/@manga/mode-dev/index.ts"],
     }
   },
   "files": [
