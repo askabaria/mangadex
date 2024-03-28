@@ -257,7 +257,7 @@ export const mangadexUploadsApi = new CommandExecutor(
             const hFile = options.targetFile + ".headers";
             if (options.url.includes("mangadex.org")) {
               unlinkSync(hFile);
-              return of(true);
+              return of(false);
             }
             const headers = readFileSync(hFile, "utf-8")
               .split("\n")

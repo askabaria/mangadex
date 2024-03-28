@@ -121,7 +121,6 @@ export class DevRunner implements Runner {
                   return listChapterImages(chapter.chapterImgRefs).map(
                     (imageUrl, index) =>
                       defer(() =>
-                        of(
                           mangadexUploadsApi.issue({
                             download: {
                               file: {
@@ -132,13 +131,12 @@ export class DevRunner implements Runner {
                                     .translatedLanguage
                                 }/${getTitle(data.manga, envLangs)}/${
                                   chapter.chapterData.attributes.chapter
-                                }/${index}${imageUrl.substring(
+                                }/${String(index).padStart(4, '0')}${imageUrl.substring(
                                   imageUrl.lastIndexOf(".")
                                 )}`,
                               },
                             },
                           })
-                        )
                       )
                   );
                 })
@@ -147,7 +145,8 @@ export class DevRunner implements Runner {
           )
         )
         .subscribe((r) => {
-          console.log(r);
+          // currently contains a list of which images have been loaded externally...
+          console.log(`${r.length} images loaded`);
         });
     }
     return false;
