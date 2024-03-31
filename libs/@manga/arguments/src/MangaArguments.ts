@@ -19,7 +19,7 @@ export class MangaArguments {
     /**
      * configuration file location
      */
-    configuration: "~/.mangadex/cfg.nix",
+    configuration: ["~/.mangadex/cfg.nix"],
     /**
      * activated subscriptions (what gets modified/etc. by the script)
      */
@@ -112,6 +112,13 @@ export class MangaArguments {
       }
     }
     return r;
+  }
+
+  /**
+   * runs the provided stage with an overlayed set of environment
+   */
+  subRun(stage: string, env: Record<string, any>, isolate = false) {
+
   }
 
   /**
