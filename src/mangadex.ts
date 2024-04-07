@@ -4,7 +4,7 @@ import { DevRunner } from "@manga/mode-dev";
 
 new MangaArguments(process.argv.slice(2))
   .registerRunners({
-    interactive: new InteractiveRunner(),
     dev: new DevRunner(),
+    interactive: new InteractiveRunner(),
   })
   .run();

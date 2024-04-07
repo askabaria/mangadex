@@ -2,7 +2,7 @@ import { WebApiClient, CommandExecutor } from "@aska/commands";
 import { MangaSearchResult } from "./models/MangaSearchResult";
 import { MangaFeedItem } from "./models/MangaFeed";
 import { M_Chapter } from "./models/Chapter";
-import { mkdirSync, readFileSync, statSync, unlinkSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync } from "fs";
 import { cwd } from "process";
 import { of } from "rxjs";
 
@@ -85,6 +85,9 @@ export const mangadexApi = new WebApiClient({
         },
         parseRes(result, { text = undefined as undefined | string }) {
           const response = JSON.parse(result.body);
+          if (response.result !== 'ok') {
+            debugger;
+          }
           log("@todo: check response for integrity");
           log("@todo: check response for pages");
           return response as M_Chapter;
@@ -247,9 +250,21 @@ export const mangadexUploadsApi = new CommandExecutor(
           ) => {
             console.log(`Downloading ${url} to ${targetFile}`);
             const compiledArgs = `"${url}" --silent --output "${targetFile}" -D "${targetFile}.headers"`;
-            mkdirSync(targetFile.substring(0, targetFile.lastIndexOf("/")), {
-              recursive: true,
-            });
+            const mkdirTarget = targetFile.substring(
+              0,
+              targetFile.lastIndexOf("/")
+            );
+            for (let i = 0; i < 10; ++i) {
+              try {
+                if (existsSync(mkdirTarget)) {
+                  break;
+                }
+                mkdirSync(mkdirTarget, {
+                  recursive: true,
+                });
+                break; // retry...
+              } catch (e) {}
+            }
             (scope as { reqStart: number }).reqStart = Date.now();
             return compiledArgs;
           },

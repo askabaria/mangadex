@@ -31,13 +31,13 @@ export class MangaArguments {
     /**
      * where to put downloaded files
      */
-    target: "~/.mangadex/target",
+    target: "/mnt/c/Users/fabian/OneDrive/Bilder/Manga",
     /**
      * what mode to run
      *
      * can be one of all the registered run modes, defaults to "interactive" client
      */
-    run: ["interactive"],
+    run: ["dev"],
   };
   private configuration = structuredClone(MangaArguments.defaultConfiguration);
 

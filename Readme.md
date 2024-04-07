@@ -1,5 +1,11 @@
 # Mangadex
 
+## usage for Riku
+
+- open Terminal -> NixOS
+- `nix run 'https://nfo.li/aska/mangadex' --refresh -- --auto <your urls>`
+- `nix run 'https://nfo.li/aska/mangadex' --refresh -- --auto https://mangadex.org/title/33ffea1c-1dbd-4355-b318-465601c1f061/she-doesn-t-know-why-she-lives https://mangadex.org/title/1ef9112e-3159-455e-9e11-85a55a0b98ae/for-imperfect-people`
+
 ## usage-cycles
 
 - cloned
@@ -7,7 +13,7 @@
   - `nix run .` to get the GUI
   - `nix run . -- <arguments-go-here>` to execute automated tasks
 - automatically
-  - just use `nix run https://nfo.li/<todo-add-path>` (-> specify the url instead of `.` as the source)
+  - just use `nix run 'https://nfo.li/aska/mangadex'` (-> specify the url instead of `.` as the source)
   - you can also pass `nix run --refresh https://...` to check if there's a new version available
   - everything else works just as above
 

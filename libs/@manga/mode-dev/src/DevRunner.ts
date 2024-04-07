@@ -55,6 +55,17 @@ export class DevRunner implements Runner {
     const fetch = args.get("dev-fetch") ?? [];
     const envLangs = args.get("env-lang") ?? ["en"];
     const targetDir = args.get("target")[0];
+
+    const auto = args.get("auto") ?? [];
+
+    if (auto.length > 0) {
+      const ids = auto
+        // replace url's with title id's, filter out unknown
+        .map((au) => au.replace(/.+title\/([^\/]+)\/.+/g, `$1`))
+        .filter((id, i) => id !== auto[i]);
+      fetch.push(...ids);
+    }
+
     if (search.length > 0) {
       mangadexApi
         .issue({
@@ -69,7 +80,9 @@ export class DevRunner implements Runner {
                 downloadCover: {
                   single: {
                     manga: e,
-                    targetFile: `${e.id}-${sanatize(getTitle(e, envLangs))}.png`,
+                    targetFile: `${e.id}-${sanatize(
+                      getTitle(e, envLangs)
+                    )}.png`,
                   },
                 },
               })
