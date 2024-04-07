@@ -78,7 +78,7 @@ export class DevRunner implements Runner {
         });
     }
     if (fetch.length > 0) {
-      for (const mangaId of fetch[0]) {
+      for (const mangaId of fetch) {
         // @todo: dynamic output path by string template
         mangadexApi
           .issue({ manga: { getFeed: { mangaId: mangaId } } })
