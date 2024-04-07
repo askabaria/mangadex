@@ -60,7 +60,8 @@ export const mangadexApi = new WebApiClient({
             url: [mangaId, "feed"],
             queryArgs: {
               // "includes[]": "cover_art",
-              limit: "100",
+              // @todo: request pages, ok for now... a little...
+              limit: "500",
             },
           };
         },
