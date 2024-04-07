@@ -35,7 +35,7 @@ function getTitle(manga: MangaSearchResult, envLangs: string[]) {
 }
 
 function sanatize(part: string): string{
-  return part.replaceAll(/[^0-9a-zA-Z]/, '_').replaceAll(/__+/, '_').replaceAll('_', ' ').trim();
+  return part.replaceAll(/[^0-9a-zA-Z]/g, '_').replaceAll(/__+/g, '_').replaceAll('_', ' ').trim();
 }
 
 const dbg = {
