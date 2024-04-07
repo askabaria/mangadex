@@ -34,6 +34,10 @@ function getTitle(manga: MangaSearchResult, envLangs: string[]) {
   return "---";
 }
 
+function sanatize(part: string): string{
+  return part.replaceAll(/[^0-9a-zA-Z]/, '_').replaceAll(/__+/, '_').replaceAll('_', ' ').trim();
+}
+
 const dbg = {
   loadedChapterInfo: (chapter: MangaFeedItem) =>
     console.log(
@@ -129,8 +133,8 @@ export class DevRunner implements Runner {
                                 targetFile: `${targetDir}/${
                                   chapter.chapterData.attributes
                                     .translatedLanguage
-                                }/${getTitle(data.manga, envLangs)}/${
-                                  chapter.chapterData.attributes.chapter
+                                }/${sanatize(getTitle(data.manga, envLangs))}/${
+                                  sanatize(chapter.chapterData.attributes.chapter)
                                 }/${String(index).padStart(4, '0')}${imageUrl.substring(
                                   imageUrl.lastIndexOf(".")
                                 )}`,
