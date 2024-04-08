@@ -1,5 +1,9 @@
 import { MangaArguments, Runner } from "@manga/arguments";
-import { mangadexApi, mangadexUploadsApi } from "@manga/commands";
+import {
+  MANGADEX_DOWNLOAD_RATE_LIMIT,
+  mangadexApi,
+  mangadexUploadsApi,
+} from "@manga/commands";
 import {
   M_Chapter,
   listChapterImages,
@@ -43,9 +47,15 @@ function sanatize(part: string): string {
 }
 
 const dbg = {
-  loadedChapterInfo: (chapter: MangaFeedItem) =>
+  loadedChapterInfo: (
+    chapter: MangaFeedItem,
+    feed: MangaSearchResult,
+    envLangs: string[]
+  ) =>
     console.log(
-      `loaded info for chapter [${chapter.attributes.chapter}] @ ${chapter.attributes.translatedLanguage}`
+      `loaded info for chapter [${chapter.attributes.chapter}] @ ${
+        chapter.attributes.translatedLanguage
+      }} : ${getTitle(feed, envLangs)}`
     ),
 };
 
@@ -96,8 +106,18 @@ export class DevRunner implements Runner {
         mangadexApi
           .issue({ manga: { getFeed: { mangaId: mangaId } } })
           .pipe(
+            switchMap((data) => {
+              return mangadexApi
+                .issue({ manga: { getInfo: { mangaId: mangaId } } })
+                .pipe(
+                  map((manga) => ({
+                    feed: data,
+                    manga,
+                  }))
+                );
+            }),
             switchMap((r) => {
-              const selectedChapters = r.filter((ch) =>
+              const selectedChapters = r.feed.filter((ch) =>
                 envLangs.includes(ch.attributes.translatedLanguage)
               );
               return combineLatest(
@@ -110,7 +130,7 @@ export class DevRunner implements Runner {
                     .pipe(
                       map(
                         (cData) => (
-                          dbg.loadedChapterInfo(chap),
+                          dbg.loadedChapterInfo(chap, r.manga, envLangs),
                           {
                             chapterData: chap,
                             chapterImgRefs: cData,
@@ -120,17 +140,12 @@ export class DevRunner implements Runner {
                       )
                     )
                 )
+              ).pipe(
+                map((d) => ({
+                  ...r,
+                  chapters: d,
+                }))
               );
-            }),
-            switchMap((data) => {
-              return mangadexApi
-                .issue({ manga: { getInfo: { mangaId: mangaId } } })
-                .pipe(
-                  map((manga) => ({
-                    chapters: data,
-                    manga,
-                  }))
-                );
             }),
             switchMap((data) =>
               combineLatest(
@@ -138,28 +153,31 @@ export class DevRunner implements Runner {
                   .map((chapter) => {
                     return listChapterImages(chapter.chapterImgRefs).map(
                       (imageUrl, index) =>
-                        defer(() =>
-                          mangadexUploadsApi.issue({
-                            download: {
-                              file: {
-                                url: imageUrl,
-                                // keeps file-endinf od original file
-                                targetFile: `${targetDir}/${
-                                  chapter.chapterData.attributes
-                                    .translatedLanguage
-                                }/${sanatize(
-                                  getTitle(data.manga, envLangs)
-                                )}/${sanatize(
-                                  chapter.chapterData.attributes.chapter
-                                )}/${String(index).padStart(
-                                  4,
-                                  "0"
-                                )}${imageUrl.substring(
-                                  imageUrl.lastIndexOf(".")
-                                )}`,
+                        of(true).pipe(
+                          MANGADEX_DOWNLOAD_RATE_LIMIT,
+                          switchMap(() =>
+                            mangadexUploadsApi.issue({
+                              download: {
+                                file: {
+                                  url: imageUrl,
+                                  // keeps file-endinf od original file
+                                  targetFile: `${targetDir}/${
+                                    chapter.chapterData.attributes
+                                      .translatedLanguage
+                                  }/${sanatize(
+                                    getTitle(data.manga, envLangs)
+                                  )}/${sanatize(
+                                    chapter.chapterData.attributes.chapter
+                                  )}/${String(index).padStart(
+                                    4,
+                                    "0"
+                                  )}${imageUrl.substring(
+                                    imageUrl.lastIndexOf(".")
+                                  )}`,
+                                },
                               },
-                            },
-                          })
+                            })
+                          )
                         )
                     );
                   })

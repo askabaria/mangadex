@@ -1,5 +1,13 @@
 import { RequireAtLeastOne, RequireOnlyOne } from "@aska/utils";
-import { Observable, catchError, from, map, of, switchMap } from "rxjs";
+import {
+  MonoTypeOperatorFunction,
+  Observable,
+  catchError,
+  from,
+  map,
+  of,
+  switchMap,
+} from "rxjs";
 
 export type WE_RequestsStruct<
   Target,
@@ -114,6 +122,10 @@ export type WE_Setup<Requests extends WE_RequestsDef = WE_RequestsDef> = {
    * base url to put computed parameters onto
    */
   baseUrl: string;
+  /**
+   * rate-limit operator to be used before issuing requests
+   */
+  rateLimit?: MonoTypeOperatorFunction<any>;
   /**
    * a chance to modify each request after it has been constructed and before it's sent (for purposes like adding auth-data, etc.)
    *
@@ -233,52 +245,58 @@ export class WebApiClient<
             .map(([n, v]) => `${n}=${v}`)
             .join(`&`));
     // @todo: execute request
-    return from(
-      fetch(rUrl, {
-        headers: rqst.headers,
-        method: rqst.method ?? "GET",
-        referrerPolicy: "no-referrer",
-        // cache: 'no-cache',
-        body: rqst.data,
-      })
-    ).pipe(
-      switchMap((rawResponse) =>
-        from(
-          rawResponse.bodyUsed
-            ? rawResponse.text()
-            : (rawResponse.json() as Promise<any>)
-        ).pipe(
-          catchError(() => of("NO BODY PRESENT")),
-          map((bodyText) => {
-            // console.log(bodyText, JSON.stringify({ ...rawResponse }));
-            return {
-              bodyText:
-                typeof bodyText === "string"
-                  ? bodyText
-                  : // just to unify the api... will work with dynamic typings in future versions!
-                    JSON.stringify({ ...bodyText }, null, ""),
-              rawResponse,
-            };
+    return of(true)
+      .pipe(
+        (this.setup.rateLimit ?? // otherwise noop
+          ((i) => i)) as MonoTypeOperatorFunction<boolean>,
+        switchMap(() =>
+          fetch(rUrl, {
+            headers: rqst.headers,
+            method: rqst.method ?? "GET",
+            referrerPolicy: "no-referrer",
+            // cache: 'no-cache',
+            body: rqst.data,
           })
         )
-      ),
-      map(({ bodyText, rawResponse }) => {
-        return this.parseCommandResult(
-          {
-            body: bodyText,
-            _request: rqst,
-            responseHeaders: Object.fromEntries([
-              // trust me, it works ;D
-              ...(rawResponse.headers as any),
-            ]),
-            status: rawResponse.status,
-            statusText: rawResponse.statusText,
-            url: rUrl,
-          },
-          request
-        );
-      })
-    );
+      )
+      .pipe(
+        switchMap((rawResponse) =>
+          from(
+            rawResponse.bodyUsed
+              ? rawResponse.text()
+              : (rawResponse.json() as Promise<any>)
+          ).pipe(
+            catchError(() => of("NO BODY PRESENT")),
+            map((bodyText) => {
+              // console.log(bodyText, JSON.stringify({ ...rawResponse }));
+              return {
+                bodyText:
+                  typeof bodyText === "string"
+                    ? bodyText
+                    : // just to unify the api... will work with dynamic typings in future versions!
+                      JSON.stringify({ ...bodyText }, null, ""),
+                rawResponse,
+              };
+            })
+          )
+        ),
+        map(({ bodyText, rawResponse }) => {
+          return this.parseCommandResult(
+            {
+              body: bodyText,
+              _request: rqst,
+              responseHeaders: Object.fromEntries([
+                // trust me, it works ;D
+                ...(rawResponse.headers as any),
+              ]),
+              status: rawResponse.status,
+              statusText: rawResponse.statusText,
+              url: rUrl,
+            },
+            request
+          );
+        })
+      );
   }
   /**
    * renders options into commands using local configs and configured argument-transformers

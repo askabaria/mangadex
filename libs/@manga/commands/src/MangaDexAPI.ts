@@ -5,12 +5,23 @@ import { M_Chapter } from "./models/Chapter";
 import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync } from "fs";
 import { cwd } from "process";
 import { of } from "rxjs";
+import { rateLimit } from "@aska/utils";
 
 const log = (...args: any[]) => {};
+
+export const MANGADEX_API_RATE_LIMIT = rateLimit({
+  tokens: 3,
+  reuseTime: 1000 * 10,
+});
+export const MANGADEX_DOWNLOAD_RATE_LIMIT = rateLimit({
+  tokens: 3,
+  reuseTime: 1000 * 10,
+});
 
 export const mangadexApi = new WebApiClient({
   baseUrl: "https://api.mangadex.org",
   name: "mangadex",
+  rateLimit: MANGADEX_API_RATE_LIMIT,
   requests: {
     manga: {
       search: {
@@ -85,7 +96,7 @@ export const mangadexApi = new WebApiClient({
         },
         parseRes(result, { text = undefined as undefined | string }) {
           const response = JSON.parse(result.body);
-          if (response.result !== 'ok') {
+          if (response.result !== "ok") {
             debugger;
           }
           log("@todo: check response for integrity");
@@ -100,6 +111,7 @@ export const mangadexApi = new WebApiClient({
 const mangadexNetworkApi = new WebApiClient({
   baseUrl: "https://api.mangadex.network",
   name: "mangadex-network",
+  rateLimit: MANGADEX_API_RATE_LIMIT,
   requests: {
     report: {
       imgload: {
