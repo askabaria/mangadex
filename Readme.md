@@ -3,8 +3,8 @@
 ## usage for Riku
 
 - open Terminal -> NixOS
-- `nix run 'https://nfo.li/aska/mangadex' --refresh -- --auto <your urls>`
-- `nix run 'https://nfo.li/aska/mangadex' --refresh -- --auto https://mangadex.org/title/33ffea1c-1dbd-4355-b318-465601c1f061/she-doesn-t-know-why-she-lives https://mangadex.org/title/1ef9112e-3159-455e-9e11-85a55a0b98ae/for-imperfect-people`
+- `nix run 'git+https://nfo.li/aska/mangadex' --refresh -- --auto <your urls>`
+- `nix run 'git+https://nfo.li/aska/mangadex' --refresh -- --auto https://mangadex.org/title/33ffea1c-1dbd-4355-b318-465601c1f061/she-doesn-t-know-why-she-lives https://mangadex.org/title/1ef9112e-3159-455e-9e11-85a55a0b98ae/for-imperfect-people`
 - a different root directory can be specified with `--target /mnt/c/Users/...`
 
 ## usage-cycles
