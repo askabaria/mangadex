@@ -14,7 +14,7 @@
   - `nix run .` to get the GUI
   - `nix run . -- <arguments-go-here>` to execute automated tasks
 - automatically
-  - just use `nix run 'https://nfo.li/aska/mangadex'` (-> specify the url instead of `.` as the source)
+  - just use `nix run 'git+https://nfo.li/aska/mangadex'` (-> specify the url instead of `.` as the source)
   - you can also pass `nix run --refresh https://...` to check if there's a new version available
   - everything else works just as above
 
