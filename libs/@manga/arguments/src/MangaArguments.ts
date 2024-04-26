@@ -31,7 +31,7 @@ export class MangaArguments {
     /**
      * where to put downloaded files
      */
-    target: "/mnt/c/Users/fabia/OneDrive/Bilder/Manga",
+    target: "/mnt/d/Mangaaa/01-New\ downloads/",
     /**
      * what mode to run
      *
