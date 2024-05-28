@@ -31,7 +31,7 @@ export class MangaArguments {
     /**
      * where to put downloaded files
      */
-    target: "/mnt/d/Mangaaa/01-New\ downloads/",
+    target: "/mnt/d/Mangaaa/01-New\ downloads",
     /**
      * what mode to run
      *
@@ -120,7 +120,7 @@ export class MangaArguments {
   get(primaryKey: string): string[] {
     // @todo: replace this ~~cra~~.......... stuff with the advanced argument mapper, once I sifted through my backups...
     let v = (this.configuration as any)[primaryKey];
-    if (typeof v === 'string') {
+    if (typeof v === "string") {
       v = [v];
     }
     return v;

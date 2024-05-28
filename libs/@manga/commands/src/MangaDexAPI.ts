@@ -66,13 +66,14 @@ export const mangadexApi = new WebApiClient({
         },
       },
       getFeed: {
-        renderReq({ mangaId }: { mangaId: string }) {
+        renderReq({ mangaId, page = 0 }: { mangaId: string; page?: number }) {
           return {
             url: [mangaId, "feed"],
             queryArgs: {
               // "includes[]": "cover_art",
               // @todo: request pages, ok for now... a little...
               limit: "500",
+              page: String(page),
             },
           };
         },
@@ -80,6 +81,10 @@ export const mangadexApi = new WebApiClient({
           const response = JSON.parse(result.body);
           log("@todo: check response for integrity");
           log("@todo: check response for pages");
+          const total: number = response.total;
+          const limit: number = response.limit;
+          if (total > limit) {
+          }
           return response.data as MangaFeedItem[];
         },
       },
