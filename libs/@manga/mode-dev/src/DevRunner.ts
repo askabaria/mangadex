@@ -5,26 +5,12 @@ import {
   mangadexUploadsApi,
 } from "@manga/commands";
 import {
-  M_Chapter,
   listChapterImages,
 } from "libs/@manga/commands/src/models/Chapter";
 import { MangaFeedItem } from "libs/@manga/commands/src/models/MangaFeed";
 import { MangaSearchResult } from "libs/@manga/commands/src/models/MangaSearchResult";
 import { M_LangCodes } from "libs/@manga/commands/src/models/static-data";
-import { combineLatest, defer, map, of, switchMap } from "rxjs";
-
-function getCoverArt(manga: MangaSearchResult) {
-  const coverDescription = manga.relationships.find(
-    (r) => r.type === "cover_art"
-  );
-  if (
-    coverDescription === undefined ||
-    coverDescription.attributes === undefined
-  ) {
-    return undefined;
-  }
-  return `https://uploads.mangadex.org/covers/${manga.id}/${coverDescription.attributes.fileName}`;
-}
+import { combineLatest, map, of, switchMap } from "rxjs";
 
 function getTitle(manga: MangaSearchResult, envLangs: string[]) {
   for (const lang of [
@@ -54,8 +40,8 @@ const dbg = {
   ) =>
     console.log(
       `loaded info for chapter [${chapter.attributes.chapter}] @ ${
-        chapter.attributes.translatedLanguage
-      }} : ${getTitle(feed, envLangs)}`
+chapter.attributes.translatedLanguage
+}} : ${getTitle(feed, envLangs)}`
     ),
 };
 
@@ -70,9 +56,9 @@ export class DevRunner implements Runner {
 
     if (auto.length > 0) {
       const ids = auto
-        // replace url's with title id's, filter out unknown
-        .map((au) => au.replace(/.+title\/([^\/]+)\/.+/g, `$1`))
-        .filter((id, i) => id !== auto[i]);
+      // replace url's with title id's, filter out unknown
+      .map((au) => au.replace(/.+title\/([^\/]+)\/.+/g, `$1`))
+      .filter((id, i) => id !== auto[i]);
       fetch.push(...ids);
     }
 
@@ -91,8 +77,8 @@ export class DevRunner implements Runner {
                   single: {
                     manga: e,
                     targetFile: `${e.id}-${sanatize(
-                      getTitle(e, envLangs)
-                    )}.png`,
+getTitle(e, envLangs)
+)}.png`,
                   },
                 },
               })
@@ -123,29 +109,29 @@ export class DevRunner implements Runner {
               return combineLatest(
                 selectedChapters.map((chap) =>
                   mangadexApi
-                    .issue({
-                      // get from chapter-list to each chapters list of images
-                      "at-home": { listChapter: { chapterId: chap.id } },
-                    })
-                    .pipe(
-                      map(
-                        (cData) => (
-                          dbg.loadedChapterInfo(chap, r.manga, envLangs),
-                          {
-                            chapterData: chap,
-                            chapterImgRefs: cData,
-                            images: listChapterImages(cData),
-                          }
-                        )
+                  .issue({
+                    // get from chapter-list to each chapters list of images
+                    "at-home": { listChapter: { chapterId: chap.id } },
+                  })
+                  .pipe(
+                    map(
+                      (cData) => (
+                        dbg.loadedChapterInfo(chap, r.manga, envLangs),
+                        {
+                          chapterData: chap,
+                          chapterImgRefs: cData,
+                          images: listChapterImages(cData),
+                        }
                       )
                     )
+                  )
                 )
               ).pipe(
-                map((d) => ({
-                  ...r,
-                  chapters: d,
-                }))
-              );
+                  map((d) => ({
+                    ...r,
+                    chapters: d,
+                  }))
+                );
             }),
             switchMap((data) =>
               combineLatest(
@@ -162,18 +148,18 @@ export class DevRunner implements Runner {
                                   url: imageUrl,
                                   // keeps file-endinf od original file
                                   targetFile: `${targetDir}/${
-                                    chapter.chapterData.attributes
-                                      .translatedLanguage
-                                  }/${sanatize(
-                                    getTitle(data.manga, envLangs)
-                                  )}/${sanatize(
-                                    chapter.chapterData.attributes.chapter
-                                  )}/${String(index).padStart(
-                                    4,
-                                    "0"
-                                  )}${imageUrl.substring(
-                                    imageUrl.lastIndexOf(".")
-                                  )}`,
+chapter.chapterData.attributes
+.translatedLanguage
+}/${sanatize(
+getTitle(data.manga, envLangs)
+)}/${sanatize(
+chapter.chapterData.attributes.chapter
+)}/${String(index).padStart(
+4,
+"0"
+)}${imageUrl.substring(
+imageUrl.lastIndexOf(".")
+)}`,
                                 },
                               },
                             })
