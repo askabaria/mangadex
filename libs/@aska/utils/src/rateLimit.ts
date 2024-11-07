@@ -11,12 +11,12 @@ import {
   map,
   finalize,
   delay,
+  tap,
 } from "rxjs";
 
 export function rateLimit<T>({
   tokens,
   reuseTime = 1000,
-  depleetedDelay = 200,
   scheduler = asyncScheduler,
   timerOnClose = true,
   name = "",
@@ -25,8 +25,6 @@ export function rateLimit<T>({
   tokens: number;
   // time after "free" until a token can be reused
   reuseTime: number;
-  // ms to delay a pipe on depleeted
-  depleetedDelay?: number;
   // scheduler to use for timing
   scheduler?: SchedulerLike;
   // defaults to setting the "renew" on finalize instead of when requesting (=>false)
@@ -66,15 +64,16 @@ export function rateLimit<T>({
             }
             return value;
           }),
-          finalize(()=>{
-            if(timerOnClose){
-              console.log(`rate-tokens ${$tokens.getValue() + 1} / ${tokens} @ ${name} used; scheduling renew in ${Math.floor(reuseTime/100)/10}`);
+          tap({
+            complete: ()=>{
+            if(timerOnClose) {
+              console.log(`rate-tokens ${$tokens.getValue()} / ${tokens} @ ${name} use complete; scheduling renew in ${Math.floor(reuseTime/100)/10}`);
               timer(reuseTime, scheduler).subscribe(renewToken);
             }
-          }),
+          },}),
           catchError((err, source) => {
             if (err === tokenDepleted) {
-              return source.pipe(delay(depleetedDelay, scheduler));
+              return source;
             }
             throw err;
           })
