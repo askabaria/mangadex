@@ -9,17 +9,28 @@ import {
   catchError,
   timer,
   map,
+  finalize,
+  delay,
 } from "rxjs";
 
 export function rateLimit<T>({
   tokens,
   reuseTime = 1000,
+  depleetedDelay = 200,
   scheduler = asyncScheduler,
+  timerOnClose = true,
   name = "",
 }: {
+  // number of available tokens
   tokens: number;
+  // time after "free" until a token can be reused
   reuseTime: number;
+  // ms to delay a pipe on depleeted
+  depleetedDelay?: number;
+  // scheduler to use for timing
   scheduler?: SchedulerLike;
+  // defaults to setting the "renew" on finalize instead of when requesting (=>false)
+  timerOnClose?: boolean;
   name?: string;
 }): MonoTypeOperatorFunction<T> {
   const tokenDepleted = Symbol("aska:rateLimit:tokenDepleted:retry");
@@ -30,7 +41,11 @@ export function rateLimit<T>({
       throw tokenDepleted;
     }
     // mathy floor is for keeping only 1 decimal for logging...
-    console.log(`rate-tokens ${c-1} / ${tokens} @ ${name} used (for ${Math.floor(reuseTime/100)/10}s)`);
+    console.log(`rate-tokens ${c-1} / ${tokens} @ ${name} ${
+      timerOnClose ?
+        `in use...` :
+        `used (for ${Math.floor(reuseTime/100)/10}s)`
+    }`);
     return $tokens.next(c - 1);
   };
   const renewToken = () =>{
@@ -46,12 +61,20 @@ export function rateLimit<T>({
           take(1),
           map(() => {
             consumeToken();
-            timer(reuseTime, scheduler).subscribe(renewToken);
+            if(!timerOnClose){
+              timer(reuseTime, scheduler).subscribe(renewToken);
+            }
             return value;
+          }),
+          finalize(()=>{
+            if(timerOnClose){
+              console.log(`rate-tokens ${$tokens.getValue() + 1} / ${tokens} @ ${name} used; scheduling renew in ${Math.floor(reuseTime/100)/10}`);
+              timer(reuseTime, scheduler).subscribe(renewToken);
+            }
           }),
           catchError((err, source) => {
             if (err === tokenDepleted) {
-              return source;
+              return source.pipe(delay(depleetedDelay, scheduler));
             }
             throw err;
           })

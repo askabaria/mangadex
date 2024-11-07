@@ -8,6 +8,7 @@ import {
   of,
   switchMap,
   isObservable,
+  retry,
 } from "rxjs";
 
 export type WE_RequestsStruct<
@@ -260,6 +261,10 @@ export class WebApiClient<
             body: rqst.data,
           });}
         ),
+        retry({
+          count: 10,
+          delay: 5_000
+        })
       )
       .pipe(
         switchMap((rawResponse) =>

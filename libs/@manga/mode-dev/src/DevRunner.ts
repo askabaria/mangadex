@@ -10,7 +10,7 @@ import {
 import { MangaFeedItem } from "libs/@manga/commands/src/models/MangaFeed";
 import { MangaSearchResult } from "libs/@manga/commands/src/models/MangaSearchResult";
 import { M_LangCodes } from "libs/@manga/commands/src/models/static-data";
-import { combineLatest, map, of, switchMap } from "rxjs";
+import { combineLatest, map, of, retry, switchMap } from "rxjs";
 
 function getTitle(manga: MangaSearchResult, envLangs: string[]) {
   for (const lang of [
@@ -163,7 +163,11 @@ imageUrl.lastIndexOf(".")
                                 },
                               },
                             })
-                          )
+                          ),
+                          retry({
+                            count: 10,
+                            delay: 5_000
+                          })
                         )
                     );
                   })
