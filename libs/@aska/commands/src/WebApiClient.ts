@@ -7,6 +7,7 @@ import {
   map,
   of,
   switchMap,
+  isObservable,
 } from "rxjs";
 
 export type WE_RequestsStruct<
@@ -95,7 +96,7 @@ export type WE_RequestDef<PartOptions, ReturnValue> = {
   /**
    * prepare your result data (eg. json parse/etc.)
    */
-  parseRes: (result: I_WE_Response_T, options: PartOptions) => ReturnValue;
+  parseRes: (result: I_WE_Response_T, options: PartOptions) => ReturnValue | Observable<ReturnValue>;
 };
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- @todo: review
 export type WE_RequestsDef = WE_RequestsStruct<
@@ -249,15 +250,16 @@ export class WebApiClient<
       .pipe(
         (this.setup.rateLimit ?? // otherwise noop
           ((i) => i)) as MonoTypeOperatorFunction<boolean>,
-        switchMap(() =>
-          fetch(rUrl, {
+        switchMap(() =>{
+          console.log(`fetching [${rUrl}]...`);
+          return fetch(rUrl, {
             headers: rqst.headers,
             method: rqst.method ?? "GET",
             referrerPolicy: "no-referrer",
             // cache: 'no-cache',
             body: rqst.data,
-          })
-        )
+          });}
+        ),
       )
       .pipe(
         switchMap((rawResponse) =>
@@ -280,7 +282,7 @@ export class WebApiClient<
             })
           )
         ),
-        map(({ bodyText, rawResponse }) => {
+        switchMap(({ bodyText, rawResponse }) => {
           return this.parseCommandResult(
             {
               body: bodyText,
@@ -344,14 +346,18 @@ export class WebApiClient<
   private parseCommandResult<Request extends RequestRequest<Setup>>(
     rawResult: I_WE_Response_T,
     request: Request
-  ): RequestResponse<Setup, Request> {
+  ): Observable<RequestResponse<Setup, Request>> {
     const [operation, action] = this.identifyRequest(request);
     const specReq = request[operation][action];
     const val = this.setup.requests[operation][action].parseRes(
       rawResult,
       specReq
     );
-    return val;
+    if(isObservable(val)){
+      // @todo: get known to new IDE
+      return val as any;
+    }
+    return from([val]);
   }
   /**
    * get operator and action for the command as usable values (+ fancy typing)

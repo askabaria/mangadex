@@ -4,7 +4,7 @@ import { MangaFeedItem } from "./models/MangaFeed";
 import { M_Chapter } from "./models/Chapter";
 import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync } from "fs";
 import { cwd } from "process";
-import { of } from "rxjs";
+import { combineLatest, combineLatestAll, from, map, Observable, of } from "rxjs";
 import { rateLimit } from "@aska/utils";
 
 const log = (...args: any[]) => {};
@@ -12,10 +12,12 @@ const log = (...args: any[]) => {};
 export const MANGADEX_API_RATE_LIMIT = rateLimit({
   tokens: 3,
   reuseTime: 1000 * 10,
+  name: "INFO-API"
 });
 export const MANGADEX_DOWNLOAD_RATE_LIMIT = rateLimit({
   tokens: 3,
   reuseTime: 1000 * 10,
+  name: "DOWNLOAD-API"
 });
 
 export const mangadexApi = new WebApiClient({
@@ -66,21 +68,34 @@ export const mangadexApi = new WebApiClient({
         },
       },
       getFeed: {
-        renderReq({ mangaId }: { mangaId: string }) {
+        renderReq({ mangaId, offset = 0 }: { mangaId: string, offset?: number }) {
           return {
             url: [mangaId, "feed"],
             queryArgs: {
               // "includes[]": "cover_art",
               // @todo: request pages, ok for now... a little...
-              limit: "500",
+              // worked well with 500
+              limit: "200",
+              offset: String(offset),
             },
           };
         },
-        parseRes(result, { text = undefined as undefined | string }) {
+        parseRes(result, b: { mangaId: string, offset?: number }): Observable<MangaFeedItem[]> | MangaFeedItem[] {
           const response = JSON.parse(result.body);
           log("@todo: check response for integrity");
-          log("@todo: check response for pages");
-          return response.data as MangaFeedItem[];
+          const { data, total, limit, offset } = response;
+          if(offset + data.length >= total){
+            return data as MangaFeedItem[];
+          }
+          return combineLatest(
+            from([data as MangaFeedItem[]]),
+            mangadexApi.issue({manga: {getFeed: {
+              mangaId: b.mangaId,
+              offset: offset + limit,
+            }}}) as Observable<MangaFeedItem[]>
+          ).pipe(map(f => {
+            return f.flat(1);
+          })) as Observable<MangaFeedItem[]>;
         },
       },
     },
