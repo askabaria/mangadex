@@ -50,6 +50,10 @@
         exe = name: pkgs.lib.getExe pkgs.${name};
         exe' = package: name: pkgs.lib.getExe' pkgs.${package} name;
         find = exe' "findutils" "find";
+        egrep = exe "egrep";
+        head = exe' "coreutils" "head";
+        tail = exe' "coreutils" "tail";
+        sort = exe' "coreutils" "sort";
       in ''
         set GLOBALARGS $argv
 
@@ -139,7 +143,7 @@
         function preparePage -a page
           set ratio (getRatio "$page")
           if $SHOW_RATIO
-            echo "Page Ratio: $ratio @ $page"
+            echo "Page Ratio: $ratio @ $page" >&2
           end
 
           if [ $ratio -ge $DOUBLE_PAGE_FACTOR ] && not $SKIP_DOUBLE_PAGES
@@ -167,7 +171,7 @@
         end
         function getRatio -a page
           set size (getSize "$page")
-          math "$(string split x $size | head -n 1)/$(string split x $size | tail -n 1)"
+          math "$(string split x $size | ${head} -n 1)/$(string split x $size | ${tail} -n 1)"
         end
 
         not $DRY_RUN && echo "Merging..."
@@ -175,7 +179,7 @@
           not $DRY_RUN && echo ">>> $cand"
           pushd $cand
           $DRY_RUN && echo pushd \"$cand\"
-            set chapters (${find} . -mindepth 1 -maxdepth 1 -type d | sort -V)
+            set chapters (${find} . -mindepth 1 -maxdepth 1 -type d | ${sort} -V)
             for chapter in $chapters
               set width
               set height
@@ -185,13 +189,13 @@
                 not $DRY_RUN && echo "CHAPTER: $chapter"
                 set TOMERGE
                 set TOCLEAN
-                set pages (${find} . -mindepth 1 -maxdepth 1 | sort -V | egrep -v "\.pdf\$")
+                set pages (${find} . -mindepth 1 -maxdepth 1 | sort -V | ${egrep} -v "\.pdf\$")
                 for page in $pages
                   set pagenum (math "$pagenum+1")
                   if [ "$width" = "" ]
                     set size (getSize "$page")
-                    set width (string split x $size | head -n 1)
-                    set height (string split x $size | tail -n 1)
+                    set width (string split x $size | ${head} -n 1)
+                    set height (string split x $size | ${tail} -n 1)
                   end
                   preparePage (realpath "$page")
                 end
