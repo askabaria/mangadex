@@ -50,7 +50,7 @@
         exe = name: pkgs.lib.getExe pkgs.${name};
         exe' = package: name: pkgs.lib.getExe' pkgs.${package} name;
         find = exe' "findutils" "find";
-        egrep = exe "egrep";
+        egrep = exe' "gnugrep" "egrep";
         head = exe' "coreutils" "head";
         tail = exe' "coreutils" "tail";
         sort = exe' "coreutils" "sort";
