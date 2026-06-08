@@ -3,9 +3,41 @@
 ## usage for Riku
 
 - open Terminal -> NixOS
-- `nix run 'github:kittencoder/mangadex' --refresh -- --auto <your urls>`
-- `nix run 'github:kittencoder/mangadex' --refresh -- --auto https://mangadex.org/title/33ffea1c-1dbd-4355-b318-465601c1f061/she-doesn-t-know-why-she-lives https://mangadex.org/title/1ef9112e-3159-455e-9e11-85a55a0b98ae/for-imperfect-people`
+- `nix run 'github:askabaria/mangadex' --refresh -- --auto <your urls>`
+- `nix run 'github:askabaria/mangadex' --refresh -- --auto https://mangadex.org/title/33ffea1c-1dbd-4355-b318-465601c1f061/she-doesn-t-know-why-she-lives https://mangadex.org/title/1ef9112e-3159-455e-9e11-85a55a0b98ae/for-imperfect-people`
 - a different root directory can be specified with `--target /mnt/c/Users/...`
+
+## BONUS: MERGER
+
+> merges multiple pages with special rules
+>
+> you can pass flags to modify the behavoir
+
+- `nix run 'github:askabaria/mangadex'#merger --refresh -- --help`
+- `nix run 'github:askabaria/mangadex'#merger --refresh -- --target ...`
+
+### Flags:
+
+- `--target` works like the fetcher, says "where" to work
+- `--language` focus only on specific languages
+- `--filter "Lives;Hito;..."` separate search terms by `;`, when given ONLY
+  works on mangas matching at least one of the filters
+- `--skip-double-pages` when given, skips the logic for double pages
+- `--double-page-ratio 1.1` you can change the trigger-ratio when a page is seen
+  as such (1 is square, above 1 is wider, below 1 is higher)
+- `--show-ratio` shows you the calculated ratio of each page (for debugging
+  purposes)
+- `--no-even-odd` disables filler pages preceding detected double pages
+- `--even-odd` flip the even-odd counting for double-page fillers
+
+## BONUS: PDF-cat (meow)
+
+> merges all existing files into the given filename that does not exist
+
+- same same:
+- `nix run 'github:askabaria/mangadex'#pdfcat --refresh -- One.pdf Two.pdf Three.pdf Output.pdf`
+- `nix run 'github:askabaria/mangadex'#pdfcat --refresh -- Output.pdf One.pdf Two.pdf Three.pdf`
+- just make sure your output file doesn't exist
 
 ## usage-cycles
 
@@ -14,15 +46,19 @@
   - `nix run .` to get the GUI
   - `nix run . -- <arguments-go-here>` to execute automated tasks
 - automatically
-  - just use `nix run 'github:kittencoder/mangadex'` (-> specify the url instead of `.` as the source)
-  - you can also pass `nix run --refresh https://...` to check if there's a new version available
+  - just use `nix run 'github:askabaria/mangadex'` (-> specify the url instead
+    of `.` as the source)
+  - you can also pass `nix run --refresh https://...` to check if there's a new
+    version available
   - everything else works just as above
 
 ## dev-cycles
 
-- have `direnv` installed, set up and allowed (will make node, npm, etc. available to your shell and editor)
+- have `direnv` installed, set up and allowed (will make node, npm, etc.
+  available to your shell and editor)
 - `nix run . -- <arguments-go-here>` runs main application
-- `npm run update-lockfiles` when building complains about outdated locks (usually after installing an npm-package)
+- `npm run update-lockfiles` when building complains about outdated locks
+  (usually after installing an npm-package)
 
 ## @application plan
 
@@ -32,7 +68,8 @@
   - used by API-client when triggered
 - [ ] API client
   - [ ] rate-limited service-wrapper usable in resolving pipe
-- [ ] reactive friendly user-interface (fzf? bypassable/navigatable via arguments for scriptability)
+- [ ] reactive friendly user-interface (fzf? bypassable/navigatable via
+      arguments for scriptability)
   - [ ] overview with different actions
     - [ ] list of declared + updating info of availability
     - [ ] different actions to take
