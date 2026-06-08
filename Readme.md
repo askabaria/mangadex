@@ -29,6 +29,9 @@
   purposes)
 - `--no-even-odd` disables filler pages preceding detected double pages
 - `--even-odd` flip the even-odd counting for double-page fillers
+- `--dry-run` prints the commands it would execute to produce the requested
+  pdf's
+  - can be piped into a file and executed as a script
 
 ## BONUS: PDF-cat (meow)
 
